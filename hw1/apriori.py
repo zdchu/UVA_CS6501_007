@@ -2,8 +2,9 @@ import numpy as np
 from collections import defaultdict
 from itertools import combinations
 
+
 class Apriori:
-    def __init__(self, data, min_sup_rate = 0.2):
+    def __init__(self, data, min_sup_rate=0.2):
         self.data = data
         self.size = len(data)
         self.min_sup_value = min_sup_rate * self.size
@@ -20,27 +21,22 @@ class Apriori:
         return f1
 
     def prune(self, c, fn, n):
-        subset = list(combinations(c, n-1))
-        for each in subset:
+        subsets = list(combinations(c, n))
+        for each in subsets:
             each = list(each)
             if each not in fn:
                 return True
         return False
 
     def join(self, fn):
-        n = len(fn[0]) + 1
+        n = len(fn[0])
         candidate = []
         for item1 in fn:
             for item2 in fn:
-                stop = False
-                for i in range(n-2):
-                    if item1[i] != item2[i]:
-                        stop = True
-                        break
-                if stop:
+                if item1[:n-1] != item2[:n-1]:
                     continue
-                if item1[n-2] < item2[n-2]:
-                    c = item1 + [item2[n-2]]
+                if item1[n-1] < item2[n-1]:
+                    c = item1 + [item2[n-1]]
                 else:
                     continue
                 if self.prune(c, fn, n):
@@ -50,7 +46,7 @@ class Apriori:
         return candidate
 
     def run(self):
-        fn = self.first_scan()
+        fn = self.first_scan()  # initialize the frequent items set
         f = fn
         while fn:
             candidate = self.join(fn)
@@ -66,6 +62,7 @@ class Apriori:
             fn = fk
             f += fk
         return f
+
 
 def data_loader(file_path='associationruletestdata.txt'):
     '''
